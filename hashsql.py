@@ -6,15 +6,15 @@ import bcrypt
 import json
 import sys
 
-if len(sys.argv) != 4:
-    print("Usage: ./hashsql.py <username> <password> <database>")
+if len(sys.argv) != 5:
+    print("Usage: ./hashsql.py <username> <password> <database> <table>")
     sys.exit(1)
 
 def exception_handler(x):
     template = "An exception of type {0} occured. Arguements:\n{1!r}"
     message = template.format(type(x).__name__, x.args)
     print(message)
-    exit(1)
+    sys.exit(1)
 
 try:
     dbConnect = MySQLdb.connect(host='localhost', user=sys.argv[1], passwd=sys.argv[2], db=sys.argv[3])
@@ -37,11 +37,11 @@ def csv_to_list():
     
     return data
 
-def generate_hash():
+def generate_hash(table_name):
     #Create hashes for data in the second field of each list item
     #Upload hashes along with an ID to mysql.
     data = csv_to_list()
-    sql = "INSERT INTO users (email, password) VALUES (%s, %s)"
+    sql = "INSERT INTO " + table_name + " (email, password) VALUES (%s, %s)"
     try:
         for item in data:
             ID = item[0]
@@ -73,4 +73,4 @@ def check_hash():
         print('access denied')
  
 
-generate_hash()
+generate_hash(sys.argv[4])
