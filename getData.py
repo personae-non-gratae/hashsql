@@ -4,23 +4,28 @@ import netmiko
 import nmap3
 import sys
 
-if len(sys.argv) != 3:
-    print('Usage: ./getData.py <username> <path to ssh private key>')
+#print usage 
+#to do: create options and add parsing
+if len(sys.argv) != 4:
+    print('Usage: ./getData.py <cidr range> <username> <path to ssh private key>')
     sys.exit(1)
 
 nmap = nmap3.NmapScanTechniques()
-results = nmap.nmap_ping_scan('10.0.0.0/24')
+
 
 def connect(address):
-    #create ssh connection usingd provided address to a linux device using ssh key authentication
+    #create ssh connection using provided address to a linux device using ssh key authentication
     try:
-        connection = netmiko.ConnectHandler(ip = str(address), device_type = 'linux', username = sys.argv[1], use_keys = True, key_file = sys.argv[2])
+        connection = netmiko.ConnectHandler(ip = str(address), device_type = 'linux', username = sys.argv[2], use_keys = True, key_file = sys.argv[3])
         return connection
     except Exception as ex:
         print(ex)
         return 503
 
 def main():
+    #pings all hosts in subnet, for hosts that are up check if ssh is open, if it is connect and run command
+    #to do: add more command functionality through arguement parsing, change name of file to write.
+    results = nmap.nmap_ping_scan(sys.argv[1])
     for addr in results:
         try:
             up = results[addr]['state']['state']
