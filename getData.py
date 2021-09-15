@@ -6,8 +6,8 @@ import sys
 
 #print usage 
 #to do: create options and add parsing
-if len(sys.argv) != 5:
-    print('Usage: ./getData.py <cidr range> <username> <path to ssh private key> <command>')
+if len(sys.argv) != 4:
+    print('Usage: ./getData.py <cidr range> <username> <path to ssh private key>')
     sys.exit(1)
 
 nmap = nmap3.NmapScanTechniques()
@@ -22,11 +22,12 @@ def connect(address):
         print(ex)
         return 503
 
+#to do: get input list of commands to run. output report.
+
 def main():
     #pings all hosts in subnet, for hosts that are up check if ssh is open, if it is connect and run command
     #to do: add more command functionality through arguement parsing, change name of file to write.
     results = nmap.nmap_ping_scan(sys.argv[1])
-    command = sys.argv[4]
     for addr in results:
         try:
             up = results[addr]['state']['state']
@@ -37,7 +38,7 @@ def main():
                 print(f"connecting to {addr}")
                 ssh_connection = connect(addr)
                 if ssh_connection != 503:
-                    data = ssh_connection.send_command(command)
+                    data = ssh_connection.send_command('ls -l')
                     print('Writing data')
                     f = open('data.txt', 'a')
                     f.write(str(addr))
