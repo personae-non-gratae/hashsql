@@ -27,6 +27,8 @@ def connect(address):
 def main():
     #pings all hosts in subnet, for hosts that are up check if ssh is open, if it is connect and run command
     #to do: add more command functionality through arguement parsing, change name of file to write.
+    commands = input('Enter commands seperated by commas ",": ')
+    commands_list = commands.split(',')
     results = nmap.nmap_ping_scan(sys.argv[1])
     for addr in results:
         try:
@@ -38,16 +40,23 @@ def main():
                 print(f"connecting to {addr}")
                 ssh_connection = connect(addr)
                 if ssh_connection != 503:
-                    data = ssh_connection.send_command('ls -l')
-                    print('Writing data')
-                    f = open('data.txt', 'a')
-                    f.write(str(addr))
-                    f.write('\n')
-                    f.write(data)
-                    f.write('\n')
-                    f.write('----------------------------------------------------')
-                    f.write('\n')
-                    f.close()
+                    for cmd in range(len(commands_list)):
+                        try:
+                            data = ssh_connection.send_command(str(commands_list[cmd]))
+                            print('Writing data')
+                            f = open('data.txt', 'a')
+                            f.write(str(addr))
+                            f.write('\n')
+                            f.write(str(cmd))
+                            f.write('\n')
+                            f.write(data)
+                            f.write('\n')
+                            f.write('----------------------------------------------------')
+                            f.write('\n')
+                            f.close()
+                        except Exception as X:
+                            print(X)
+                            pass
                 else:
                     pass
 
